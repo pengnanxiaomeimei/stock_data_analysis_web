@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>定投计划</title>
+</head>
+<body>
+
+  <div class="block" id="app">
+    <span class="demonstration">默认</span>
+    <el-date-picker
+      v-model="value1"
+      type="date"
+      placeholder="选择日期">
+    </el-date-picker>
+  </div>
+
+
+    <input type="text" id="test1" placeholder="请选择日期">
+    <!-- laydate 日期组件 -->
+    <script src="/static/js/layDate-v5.0.9/laydate/laydate.js"></script>
+    <script src="/static/js/jquery-3.2.1.min.js"></script>
+    <!-- vue js库 -->
+     <script src="/static/js/vue.js"></script>
+     <!-- 引入element-ui样式 -->
+     <link rel="stylesheet" href="https://unpkg.com/element-ui@2.13.2/lib/theme-chalk/index.css">
+     <!-- 引入element-ui组件库 -->
+     <script src="https://unpkg.com/element-ui@2.13.2/lib/index.js"></script>
+    <script>
+     //执行一个laydate实例
+     laydate.render({
+       elem: '#test1' //指定元素
+     });
+
+     new Vue({
+      el: '#app',
+      data: {
+          pickerOptions: {
+          disabledDate(time) {
+            return time.getTime() > Date.now();
+          },
+          shortcuts: [{
+            text: '今天',
+            onClick(picker) {
+              picker.$emit('pick', new Date());
+            }
+          }, {
+            text: '昨天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '一周前',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            }
+          }]
+        },
+        value1: '',
+        value2: '',
+      }
+  });
+     </script>
+</body>
+</html>

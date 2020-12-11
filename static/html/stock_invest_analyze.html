@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>定投计划</title>
+
+    <style type="text/css">
+      .el-row {
+        margin-bottom: 20px;
+      }
+      .el-col {
+        border-radius: 4px;
+      }
+      .bg-purple-dark {
+        background: #99a9bf;
+      }
+      .bg-purple {
+        background: #d3dce6;
+      }
+      .bg-purple-light {
+        background: #e5e9f2;
+      }
+      .grid-content {
+        border-radius: 4px;
+        min-height: 36px;
+      }
+      .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+      }
+    </style>
+</head>
+<body>
+     <h1>历史</h1>
+
+     <!-- element-ui start -->
+     <div id="app">
+         <!--
+         <div class="demo-input-suffix">
+         <el-input
+         placeholder="请选择日期"
+         suffix-icon="el-icon-date"
+         v-model="input1">
+         </el-input>
+         <el-input
+         placeholder="请输入内容"
+         prefix-icon="el-icon-search"
+         v-model="input2">
+         </el-input>
+         </div>
+         -->
+
+         <div class="block" style="position: relative;float: left">
+            <el-date-picker
+              v-model="value1"
+              type="date"
+              placeholder="选择日期">
+            </el-date-picker>
+         </div>
+         <div style="position: relative;float: left;margin-left: 20px">
+             <el-select
+                v-model="value"
+                filterable
+                placeholder="请输入关键词"
+                :filter-method="remoteMethod"
+                :loading="loading"
+                @change="handleSelect"
+             >
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+         </div>
+         <el-button style="margin-left: 20px" icon="el-icon-search" circle @click="querySearch"></el-button>
+         <div style="width: 50%">
+             <span>分析结果</span>
+             <!-- 结果表格 -->
+             <el-table
+            :data="tableData"
+            border
+            style="width: 100%">
+            <el-table-column
+              fixed
+              prop="date"
+              label="日期"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="up_count"
+              label="上涨次数"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="up_probability"
+              label="上涨概率">
+            </el-table-column>
+            <el-table-column
+              prop="down_count"
+              label="下跌次数"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="down_probability"
+              label="下跌概率">
+            </el-table-column>
+            <el-table-column
+              prop="total_count"
+              label="总次数">
+            </el-table-column>
+          </el-table>
+         </div>
+         <!--
+         <el-button @click="addRow">默认按钮</el-button>
+         -->
+     </div>
+
+
+     <!-- element-ui end -->
+
+     <!-- laydate 日期组件 -->
+     <script src="/static/js/layDate-v5.0.9/laydate/laydate.js"></script>
+     <!-- vue js库 -->
+     <script src="/static/js/vue.js"></script>
+     <!-- jquery库 -->
+     <script src="/static/js/jquery-3.2.1.min.js"></script>
+     <!-- 引入element-ui样式 -->
+     <link rel="stylesheet" href="/static/css/element-ui-index.css">
+     <!-- 引入element-ui组件库 -->
+     <script src="/static/js/element-ui-index.js"></script>
+
+
+     <script>
+
+     var tableData = [];
+
+     new Vue({
+      el: '#app',
+      data: {
+          pickerOptions: {
+          disabledDate(time) {
+            return time.getTime() > Date.now();
+          }
+        },
+        value1: '',
+        value2: '',
+        timeout:  null,
+        tableData: [],
+        options: [],
+        value: '',
+        list: [],
+        loading: false,
+        states: []
+      },
+      methods: {
+      querySearch: function () {
+          var _self = this;
+          console.log("value: " + this.value);
+          console.log("value1: " + dateFormat('YYYY-mm-dd', this.value1));
+          var date = dateFormat('YYYY-mm-dd', this.value1);
+          var split = this.value.split(".");
+          var splitElement = split[0];
+          var moudle = 'OTHER';
+          var stockCode = split[1];
+          if (splitElement === '1'){
+              moudle = 'SZ';
+          }
+          $.ajax({
+         type: "post",
+         async: false,
+         url: "/analyze_history_data_for_one_day",
+         data: {
+             "stock_code": stockCode,
+             "moudle": moudle,
+             "date": date
+         },
+         success: function (msg) {
+            msg = JSON.parse(msg)
+            console.log(msg)
+            if (msg.code === 200){
+                if (msg.data != null){
+                        console.log(typeof msg.data)
+                    _self.handleTableData(msg)
+                    console.log(typeof _self.tableData)
+                    _self.tableData = JSON.parse(JSON.stringify(_self.tableData));
+                    _self.tableData.push(msg.data)
+                }
+                console.log(this.tableData);
+                console.log(typeof this.tableData);
+            } else {
+                alert("请求失败，请稍后重试！")
+            }
+         }
+       });
+
+      },
+      handleTableData: function (msg){
+
+      },
+      handleSelect: function (item) {
+        console.log(item);
+        console.log("value === " + this.value);
+      },
+      remoteMethod: function (query) {
+        console.log(query + "query")
+        if (query !== '') {
+          this.loading = true;
+          var reList = [];
+          $.ajax({
+             type: "get",
+             async: false,
+             url: "/stock_keyword_query?keyword=" + query,
+             success: function (msg) {
+                msg = JSON.parse(msg)
+                console.log(msg.code)
+                console.log(typeof msg.code)
+                if (msg.code == 200 || msg.code == '200') {
+                    if (msg.data == null || msg.data.length == 0){
+                        reList = [];
+                        return;
+                    }
+                    var result = [];
+                    for (const el of msg.data) {
+                        var newEl = {};
+                        newEl.value = el.QuoteID;
+                        newEl.label = el.Name;
+                        result.push(newEl);
+                    }
+                    reList = result;
+                    return;
+
+                } else {
+                    alert("请求失败，请稍后重试！")
+                    reList = [];
+                    return;
+                }
+             }
+           });
+            this.list = reList;
+            console.log(this.list)
+            console.log(typeof this.list)
+            this.loading = false;
+            this.options = this.list;
+        } else {
+          this.options = [];
+        }
+      },
+      addRow: function (){
+          var row = {
+          "date": '2010',
+          "down_count": '',
+          "down_probability": '',
+          "total_count": '',
+          "up_count": '',
+          "up_probability": ''
+        }
+          console.log(this.tableData.length);
+          console.log(this.tableData);
+          this.tableData.push(row)
+      }
+      },
+      mounted() {
+    }
+  });
+
+     function dateFormat(fmt, date) {
+         if (date === ''){
+             date = new Date();
+         }
+         if (fmt === ''){
+             fmt = 'YYYY-mm-dd HH:MM:SS';
+         }
+        let ret;
+        const opt = {
+            "Y+": date.getFullYear().toString(),        // 年
+            "m+": (date.getMonth() + 1).toString(),     // 月
+            "d+": date.getDate().toString(),            // 日
+            "H+": date.getHours().toString(),           // 时
+            "M+": date.getMinutes().toString(),         // 分
+            "S+": date.getSeconds().toString()          // 秒
+            // 有其他格式化字符需求可以继续添加，必须转化成字符串
+        };
+        for (let k in opt) {
+            ret = new RegExp("(" + k + ")").exec(fmt);
+            if (ret) {
+                fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+            };
+        };
+        return fmt;
+    }
+     <!-- element-ui end -->
+     </script>
+
+</body>
+</html>
