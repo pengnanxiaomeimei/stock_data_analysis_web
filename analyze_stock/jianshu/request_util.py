@@ -111,6 +111,8 @@ def do_note_like(entry_ids):
 
 # 根据关键词查询文章并点赞
 def note_like(keyword):
+    # 关键词转义
+    keyword = urllib.parse.quote(keyword)
     # 初始化页数
     page = 1
     # 初始化总页数
@@ -133,9 +135,7 @@ def note_like(keyword):
         # print(int(time.time()))
 
 
-
-
-# note_like(["28983118"])
+note_like("热门文章")
 
 # for i in range(10):
 #     print(random.randrange(1, 20, 3))
