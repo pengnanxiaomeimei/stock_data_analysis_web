@@ -29,17 +29,18 @@ headers = {r'User-Agent': user_agent,
 # 登录成功后的cookie
 cookie_str = "__yadk_uid=I6rLZ9jXpSCvrt95oV2bojQzntCzQc6Y; locale=zh-CN; _ga=GA1.2.438895632.1610609736; " \
              "read_mode=day; default_font=font2; " \
-             "web_login_version=MTYxMjE0NzgzNw%3D%3D--e1f87cf744cab45cc8fcf4b58d04bef2562c6fc0; " \
-             "Hm_lvt_0c0e9d9b1e7d617b3e6842e85b9fb068=1611456543,1611833590,1611833940,1612147838; " \
-             "sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2223613973%22%2C%22first_id%22%3A%22176ffd23926b1b" \
-             "-047c657dc724e6-326e7006-2073600-176ffd23927c0f%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type" \
-             "%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F" \
-             "%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%2C%22" \
-             "%24latest_utm_source%22%3A%22desktop%22%2C%22%24latest_utm_medium%22%3A%22search-recent%22%7D%2C%22" \
-             "%24device_id%22%3A%22176ffd23926b1b-047c657dc724e6-326e7006-2073600-176ffd23927c0f%22%7D; " \
              "remember_user_token" \
-             "=W1syMzYxMzk3M10sIiQyYSQxMSRYTUxTZzZCc2d2bXg4WFc2OFZweU9lIiwiMTYxMjMyMTkwOS4yMTU4NzU0Il0%3D" \
-             "--e11c0bec70cbda67a55ba27085c019956b2e35c9; _m7e_session_core=ad7f398bb85a4850a5b55833135cb2f7; " \
+             "=W1syNTgyMDQ1Nl0sIiQyYSQxMSRYeWFJYmZQUVN5UWF6dzV2MG4yZEF1IiwiMTYxMjY5MDQ1Mi44NDc4NDc3Il0%3D" \
+             "--8cc9f5c9d90dcf89049f50ca1f59c541fb0c5aab; " \
+             "web_login_version=MTYxMjY5MDQ1Mg%3D%3D--b2cde55f5f93d0034944deae5e50f9bc36700044; " \
+             "_m7e_session_core=b85d3bd7f1d129e61f52e4371f6f7efc; " \
+             "sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2225820456%22%2C%22first_id%22%3A%22176ffd23926b1b" \
+             "-047c657dc724e6-326e7006-2073600-176ffd23927c0f%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type" \
+             "%22%3A%22%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%AB%99%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A" \
+             "%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC%22%2C%22%24latest_referrer%22%3A%22https%3A%2F%2Fopen.weixin.qq" \
+             ".com%2F%22%2C%22%24latest_utm_source%22%3A%22desktop%22%2C%22%24latest_utm_medium%22%3A%22search-recent" \
+             "%22%7D%2C%22%24device_id%22%3A%22176ffd23926b1b-047c657dc724e6-326e7006-2073600-176ffd23927c0f%22%7D; " \
+             "Hm_lvt_0c0e9d9b1e7d617b3e6842e85b9fb068=1611833590,1611833940,1612147838,1612690453; " \
              "Hm_lpvt_0c0e9d9b1e7d617b3e6842e85b9fb068="
 cookie = {"Cookie": cookie_str}
 
@@ -126,7 +127,7 @@ def note_like(keyword):
             break
         entry_ids = search_result["entry_ids"]
         # 进行批量点赞
-        note_like(entry_ids)
+        do_note_like(entry_ids)
         # 更新最新的total_pages
         total_pages = int(search_result["total_pages"])
         page = page + 1
