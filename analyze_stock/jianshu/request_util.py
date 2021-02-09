@@ -5,6 +5,8 @@ import ssl
 import time
 import urllib.request
 import urllib.parse
+
+import js2py
 import requests
 from bs4 import BeautifulSoup
 
@@ -115,9 +117,9 @@ def note_like(keyword):
     # 关键词转义
     keyword = urllib.parse.quote(keyword)
     # 初始化页数
-    page = 1
+    page = 9
     # 初始化总页数
-    total_pages = 1
+    total_pages = 9
 
     # 循环获取文章id并点赞
     while total_pages is not None and page <= total_pages:
@@ -136,7 +138,70 @@ def note_like(keyword):
         # print(int(time.time()))
 
 
-note_like("热门文章")
+# 简书钻文章排行
+# 获取文章编号集合
+def note_sort_list_by_diamond():
+    url = "https://www.jianshu.com/fp/notice/now?read_mode=night"
+    # 排行榜页面
+    resp = requests.get(url, headers=headers, cookies=cookie)
+    soup = BeautifulSoup(resp.content.decode(encoding="utf-8"), 'lxml')
+    # 提取sort_list值
+    scripts = soup.find_all("script")
+    script = scripts.pop(3)
+    script_str = str(script.contents[0])
+    str_splits_01 = script_str.replace("\n", "").replace(" ", "").split(";")
+    sort_dict_str_01 = ""
+    count = len(str_splits_01)
+    for i in range(count):
+        sort_dict_str_01 = sort_dict_str_01 + ";" + str_splits_01[i]
+        count = count - 1
+        if count <= 4:
+            break
+
+    sort_dict_str = sort_dict_str_01.split("=", 1)[1]
+    sort_dict = eval(sort_dict_str)
+    print(sort_dict)
+    # script_content = soup.find("script").contents
+    # sort_dict = js2py.eval_js(script_content)
+    sort_list = sort_dict["ruby"]["voter"]
+    if sort_list is None:
+        return None
+    # 文章编号
+    slug_list = []
+    for note_info in sort_list:
+        slug_list.append(note_info["slug"])
+    return slug_list
+
+
+# 获取文章id
+def get_note_id(slug):
+    url = "https://www.jianshu.com/p/" + str(slug)
+    resp = requests.get(url, headers=headers, cookies=cookie)
+    soup = BeautifulSoup(resp.content.decode(encoding="utf-8"), 'lxml')
+    note_dict_str = str(soup.find("script", {"id": "__NEXT_DATA__"}).contents[0])
+    note_dict = eval(note_dict_str)
+    print(type(note_dict))
+    note_id = note_dict["props"]["initialState"]["note"]["data"]["id"]
+    return note_id
+
+
+# 对简书钻排行的数据进行点赞
+def note_like_4_diamond_sort():
+    slug_list = note_sort_list_by_diamond()
+    if slug_list is None:
+        return None
+    for slug in slug_list:
+        note_id = get_note_id(slug)
+        do_note_like([note_id])
+        # 请求间隔
+        time.sleep(random.randrange(1, 10, 3))
+
+
+# note_like("热")
 
 # for i in range(10):
 #     print(random.randrange(1, 20, 3))
+
+note_like_4_diamond_sort()
+
+
